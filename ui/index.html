@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GoUI Tools</title>
+    <link rel="stylesheet" href="css/index.css">
+    <script src="js/goui.js"></script>
+    <script src="js/zepto.min.js"></script>
+    <script src="js/g-filepicker.js"></script>
+    <script src="js/index.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<div id="box" class="center">
+    <dl>
+        <dt><label>Project name:</label></dt>
+        <dd><input id="name"/></dd>
+    </dl>
+    <dl>
+        <dt><label>Project location:</label></dt>
+        <dd><g-filepicker id="location" action="save"></g-filepicker></dd>
+    </dl>
+    <button id="create">Create</button>
+    <textarea id="log"></textarea>
+</div>
+</body>
+</html>
