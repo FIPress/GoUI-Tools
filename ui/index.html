@@ -11,17 +11,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-<div id="box" class="center">
-    <dl>
-        <dt><label>Project name:</label></dt>
-        <dd><input id="name"/></dd>
-    </dl>
-    <dl>
-        <dt><label>Project location:</label></dt>
-        <dd><g-filepicker id="location" action="save"></g-filepicker></dd>
-    </dl>
-    <button id="create">Create</button>
-    <textarea id="log"></textarea>
+<div id="box">
+    <div class="grid">
+        <label>Project name:</label>
+        <input id="name" type="text"/>
+        <label>Project location:</label>
+        <g-filepicker id="location" action="save" canCreateDir="true" dirOnly="true" compact="true"></g-filepicker>
+        <span></span>
+        <button id="create">Create</button>
+    </div>
+
 </div>
 </body>
 </html>

@@ -1,52 +1,71 @@
 class GoUIFilePicker extends HTMLElement {
     static get observedAttributes() {
-        return ['accept','multiple', 'editable','style','class'];
+        return ['accept','multiple', 'editable','canCreateDir','style','class'];
+    }
+
+    bindAttributes() {
+        this.attributesMap = new Map();
+        this.attributesMap.set('action',{dataType:"string"});
+        this.attributesMap.set('message',{dataType:"string"});
+        this.attributesMap.set('accept',{dataType:"string"});
+        this.attributesMap.set('multiple',{dataType: "bool"});
+        this.attributesMap.set('dirOnly',{dataType: "bool"});
+        this.attributesMap.set('fileOnly',{dataType: "bool"});
+        this.attributesMap.set('canCreateDir',{dataType: "bool"});
+        this.attributesMap.set('editable',{set:function (v) {
+                const readonly = !v;
+                this.editor.setAttribute("readonly",readonly.toString());
+            }});
+        this.attributesMap.set('class',{set:function(v) {
+                this.wrapper.classList.add(v);
+            } });
+        this.attributesMap.set('compact',{set:function(v) {
+                if(!v) {
+                    this.btn.innerText = "Browser...";
+                } else {
+                    this.btn.innerText = "...";
+                }
+
+            } });
+
+        this.attributesMap.set('value',{set:function (v) {
+                this.editor.value = v;
+            },get:function (v) {
+                return this.editor.value ;
+            }});
+
+        this.attributesMap.set('files',{set:function (v) {
+                this.editor.value = v;
+            },get:function (v) {
+                return this.editor.value ;
+            }});
+
+        let _this = this;
+        this.attributesMap.forEach(function(v,k) {
+            Object.defineProperty(_this,k,v);
+            if(v.dataType) {
+                v.set = function (val) {
+                    switch (v.dataType) {
+                        case "bool":
+                            _this.data[k] = !!val;
+                            break;
+                        default :
+                            _this.data[k] = val;
+                    }
+                }
+            }
+
+        });
     }
 
     constructor() {
         super();
 
-        this.settings = {
-            //isSave: false,
-            //message: "",
-            //fileTypes: "",
-            //startLocation:"",
-            //suggestedFilename:"",
-            //multiple:false,
-            //fileOnly:false,
-            //dirOnly:false,
-            //allowsOtherFileTypes:false,
-            //canCreateDir:false,
-            //showsHiddenFiles:false,
-        };
+        this.data = {};
+        this.inited = false;
     }
-
-    get editable() {
-        return !this.editor.getAttribute("readonly");
-    }
-
-    set editable(v) {
-        const isEditable = Boolean(v);
-        this.editor.setAttribute("readonly",!isEditable);
-    }
-
-    set accept(v) {
-        //this.fileBtn.setAttribute("accept",v);
-        this.settings.accept = v;
-    }
-
-    set multiple(v) {
-        const isMulti = Boolean(v);
-        //this.fileBtn.setAttribute("multiple",v);
-        this.settings.multiple = isMulti;
-    }
-
-    set action(v) {
-        this.settings.isSave = v == "save";
-    }
-
+/*
     get value() {
-        //return this.fileBtn.value;
         return this.editor.value;
     }
 
@@ -58,91 +77,90 @@ class GoUIFilePicker extends HTMLElement {
         //split
         return this.editor.value;
     }
-
+*/
     connectedCallback() {
-        const el = document.createElement('div');
-        const shadow = el.attachShadow({mode: 'open'});
-        const wrapper = document.createElement('span');
+        if(!this.inited) {
+            this.wrapper = document.createElement('span');
+            this.wrapper.classList.add('g-filepicker');
 
-        this.editor = document.createElement('input');
-        this.editor.setAttribute('type', 'text');
-        wrapper.appendChild(this.editor);
+            this.editor = document.createElement('input');
+            this.editor.setAttribute('type', 'text');
+            this.wrapper.appendChild(this.editor);
 
-        this.btn = document.createElement('button');
-        this.btn.innerText = 'Browse...';
-        wrapper.appendChild(this.btn);
+            this.btn = document.createElement('button');
+            this.btn.innerText = 'Browse...';
+            this.wrapper.appendChild(this.btn);
 
-        //this.fileBtn = document.createElement('input');
-        //this.fileBtn.setAttribute('type', 'file');
-        //this.fileBtn.setAttribute('style','opacity:0');
-        //wrapper.appendChild(this.fileBtn);
+            const style = document.createElement('style');
 
-        // Create some CSS to apply to the shadow dom
-        const style = document.createElement('style');
-
-        style.textContent = `
-      span {
-      	display:grid;
-      	grid-template-columns: auto min-content;
-      	grid-gap: 0; 
-      }
+            style.textContent = `
+      .g-filepicker {
+      width: 100%;
+      display:grid;
+      grid-template-columns: auto min-content;
+      grid-gap: 0; 
+    }
     `;
 
-        // Attach the created elements to the shadow dom
-        shadow.appendChild(style);
-        //console.log(style.isConnected);
-        shadow.appendChild(wrapper);
-        this.appendChild(el);
+            // Attach the created elements to the shadow dom
+            this.appendChild(style);
+            //console.log(style.isConnected);
+            this.appendChild(this.wrapper);
 
-        let _this=this;
-
-        this.btn.onclick = function() {
-            //console.log("request goui service");
-            goui.request({url:"filepicker",
-                data:_this.settings,
-                success:function(path) {
-                    _this.editor.value = path;
-                }});
-        };
+            this.bindAttributes();
+            this.getAttributesFromDom();
+            this.bindEvents();
 
 
-        if(this.hasAttribute("style")) {
-            el.setAttribute("style",this.getAttribute("style"));
+
+
+            this.inited = true;
         }
-
-        if(this.hasAttribute("class")) {
-            //const s = getComputedStyle(this);
-            el.setAttribute("class",this.getAttribute("class"));
-        }
-
-        if(this.hasAttribute("multiple")) {
-            //_this.fileBtn.setAttribute("multiple",this.getAttribute("multiple"));
-            const isMulti = Boolean(this.getAttribute("multiple"));
-            //this.fileBtn.setAttribute("multiple",v);
-            _this.settings.multiple = isMulti;
-        }
-
-        if(this.hasAttribute("accept")) {
-            //_this.fileBtn.setAttribute("accept",this.getAttribute("accept"));
-            _this.settings.accept = this.getAttribute("accept");
-        }
-
-        if(this.hasAttribute("action")) {
-            _this.settings.isSave = this.getAttribute("action") == "save";
-        }
-
-        const readonly = !this.getAttribute("editable");
-        this.editor.setAttribute("readonly",readonly);
-
     }
 
     disconnectedCallback() {
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
-        switch(name) {
-
+        if(this.attributesMap) {
+            let v = this.attributesMap.get(name);
+            this.invokeSet(v,newValue);
         }
+    }
+
+    getAttributesFromDom() {
+        if(this.attributesMap) {
+            let _this = this;
+            this.attributesMap.forEach(function (v,k) {
+                if(_this.hasAttribute(k)) {
+                    _this.invokeSet(v,_this.getAttribute(k));
+                }
+            });
+        }
+    }
+
+    bindEvents() {
+        //elem.addEventListener('build', function (e) { /* ... */ }, false);
+
+        let _this=this;
+
+        this.btn.addEventListener('click',function() {
+            goui.request({url:"filepicker",
+                data:_this.data,
+                success:function(path) {
+                    _this.editor.value = path;
+                    let event = new CustomEvent('pick',{"detail":path});
+                    _this.dispatchEvent(event);
+                }});
+        });
+    }
+
+    invokeSet(attr,val) {
+        if(!attr || !attr.set) {
+            return;
+        }
+
+        attr.set.call(this,val);
     }
 
 }
