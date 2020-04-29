@@ -12,6 +12,16 @@
 </head>
 <body>
 <div id="box">
+    <dl>
+        <dt><button id="new">Create</button></dt>
+        <dd>Create a project.</dd>
+    </dl>
+    <dl>
+        <dt><button id="open">Open</button></dt>
+        <dd>Open a project to package it.</dd>
+    </dl>
+</div>
+<template id="creating">
     <div class="grid">
         <label>Project name:</label>
         <input id="name" type="text"/>
@@ -20,7 +30,9 @@
         <span></span>
         <button id="create">Create</button>
     </div>
-
-</div>
+</template>
+<template id="packaging">
+    <label>Packaging</label>
+</template>
 </body>
 </html>

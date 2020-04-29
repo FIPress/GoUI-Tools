@@ -5,6 +5,20 @@ document.addEventListener('DOMContentLoaded',function () {
     goui.service("log/:level/:msg",log);
     */
 
+    let box = document.getElementById("box");
+    let creating = document.getElementById("creating");
+    let packaging = document.getElementById("packaging");
+
+    document.getElementById("new").addEventListener('click',function () {
+        box.innerHTML = "";
+        box.appendChild(creating.cloneNode(true));
+    });
+
+    document.getElementById("open").addEventListener('click',function () {
+        box.innerHTML = "";
+        box.appendChild(packaging.cloneNode(true));
+    });
+
     let name = document.getElementById("name");
     let picker = document.getElementById("location");
     /*picker.addEventListener('pick',function (e) {
