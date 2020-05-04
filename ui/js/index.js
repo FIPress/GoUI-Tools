@@ -5,43 +5,86 @@ document.addEventListener('DOMContentLoaded',function () {
     goui.service("log/:level/:msg",log);
     */
 
+    let getTemplate = function(id) {
+        return document.getElementById(id).cloneNode(true).content.firstElementChild;
+    };
+
     let box = document.getElementById("box");
-    let creating = document.getElementById("creating");
-    let packaging = document.getElementById("packaging");
+    let creating;
+    let getCreating = function () {
+        if(creating!=null) {
+            return creating;
+        }
+        creating = getTemplate("creating");
+        let name = creating.getElementsByTagName("input")[0];
+        let picker = creating.getElementsByTagName("g-filepicker")[0];
+
+        let create = creating.getElementsByTagName("button")[0];
+        create.addEventListener('click',function () {
+            let path = picker.value;
+            if(!path) {
+                alert("Please choose a directory to create your GoUI project.");
+                return;
+            }
+            goui.request({url:"create/"+name.value+"/"+encodeURIComponent(path),
+                success: function () {
+                    showPackaging();
+                }, error: function (ret) {
+                    alert("failed");
+                }});
+        });
+
+        return creating;
+    };
+
+    let opening;
+    let getOpening = function () {
+        if(opening!=null) {
+            return opening;
+        }
+        opening = getTemplate("opening");
+        //let name = creating.getElementsByTagName("input")[0];
+        let picker = creating.getElementsByTagName("g-filepicker")[0];
+
+        let open = creating.getElementsByTagName("button")[0];
+        open.addEventListener('click',function () {
+            let path = picker.value;
+            if(!path) {
+                alert("Please choose a directory to create your GoUI project.");
+                return;
+            }
+            goui.request({url:"check/"+encodeURIComponent(path),
+                success: function () {
+                    showPackaging();
+                }, error: function (ret) {
+                    alert("failed");
+                }});
+        });
+
+        return creating;
+    };
+
+
+
+    let packaging;
+    let showPackaging = function() {
+        if(packaging != null) {
+            box.appendChild(packaging);
+            return;
+        }
+        packaging = getTemplate("packaging");
+
+        box.appendChild(packaging);
+    };
 
     document.getElementById("new").addEventListener('click',function () {
         box.innerHTML = "";
-        box.appendChild(creating.cloneNode(true));
+        box.appendChild(getCreating());
     });
 
     document.getElementById("open").addEventListener('click',function () {
         box.innerHTML = "";
-        box.appendChild(packaging.cloneNode(true));
+        box.appendChild(getOpening());
     });
-
-    let name = document.getElementById("name");
-    let picker = document.getElementById("location");
-    /*picker.addEventListener('pick',function (e) {
-        let p = e.detail;
-        if(p) {
-            picker.value = p + goui.os.pathSeparator + name.value;
-        }
-    });*/
-
-    let create = document.getElementById("create");
-    create.addEventListener('click',function () {
-        let path = picker.value;
-        if(!path) {
-            alert("Please choose a directory to create your GoUI project.");
-            return;
-        }
-        goui.request({url:"create/"+name.value+"/"+encodeURIComponent(path),
-            success: function () {
-                alert("ok");
-            }, error: function (ret) {
-                alert("failed");
-            }});
-    });
-
 
 });

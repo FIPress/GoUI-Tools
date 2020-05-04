@@ -24,12 +24,18 @@
 <template id="creating">
     <div class="grid">
         <label>Project name:</label>
-        <input id="name" type="text"/>
+        <input type="text"/>
         <label>Project location:</label>
-        <g-filepicker id="location" action="save" canCreateDir="true" dirOnly="true" compact="true"></g-filepicker>
+        <g-filepicker action="save" canCreateDir="true" dirOnly="true" compact="true"></g-filepicker>
         <span></span>
-        <button id="create">Create</button>
+        <button>Create</button>
     </div>
+</template>
+<template id="opening">
+    <h3>Open A Project</h3>
+    <g-filepicker action="save" canCreateDir="true" dirOnly="true" compact="true"></g-filepicker>
+    <span></span>
+    <button>Open</button>
 </template>
 <template id="packaging">
     <label>Packaging</label>
